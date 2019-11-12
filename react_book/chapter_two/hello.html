@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Hello React</title>
+        <meta charset="utf-8">
+    </head>
+    <body>
+    <div id="app">
+        <!--应用渲染的位置 -->
+    </div>
+<!--    设置react库-->
+    <script src="../../build/react.js"></script>
+    <script src="../../build/react-dom.js"></script>
+    <script>
+        // 自定义组件
+        var Component=React.createClass({
+            //propTypes属性，以声明组件需要接受的属性列表及其对应类型
+            propTypes:{
+              //  表名name属性是必须传递的字符串
+                firstname:React.PropTypes.string.isRequired,
+                middleName: React.PropTypes.string,
+                familyName: React.PropTypes.string.isRequired,
+                address: React.PropTypes.string,
+            },
+            //设置属性默认值
+            getDefaultProps:function(){
+                return {
+                    middleName: '',
+                    address: 'n/a',
+                };
+            },
+
+            render:function () {
+                //所有属性都可以通过this.props对象获取
+                return React.DOM.span(null,"My name is "+this.props.firstname);
+            }
+        });
+
+        //使用工厂方法创建组件实例
+        var ComponentFactory=React.createFactory(Component);
+
+        //使用自定义组件
+        ReactDOM.render(
+            //使用创建组件实例方法
+            React.createElement(Component,{
+                //传递属性给this.props
+                firstname:"Bob",
+            }),
+            //使用工厂方法
+            // ComponentFactory(),
+            document.getElementById("app")
+        );
+
+        // 应用的JavaScript代码
+        // Dom节点中渲染React组件
+        // ReactDOM.render(
+        //     //react对html dom对象的包裹层，对于html元素，可以通过如下方式进行调用
+        //     //首个参数接受一个对象，用于指定该组件的任何属性，例如给组件传递id属性
+        //     //第二个参数指定了该元素的子元素，可以进行子元素的组合与嵌套
+        //     React.DOM.h1(
+        //         {
+        //             id: "my-heading",
+        //             style:{
+        //                 background:"black",
+        //                 color:"white",
+        //                 fontFamily:"Verdana",
+        //             }
+        //         },
+        //         React.DOM.span(null,
+        //             React.DOM.em(null, "Hell"),
+        //             "o"
+        //         ),
+        //         " world!"
+        //     ),
+        //     document.getElementById("app")
+        // );
+    </script>
+    </body>
+</html>
