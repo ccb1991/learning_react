@@ -12,22 +12,52 @@
 <script src="../../build/react.js"></script>
 <script src="../../build/react-dom.js"></script>
 <script>
+    var logMixin={
+        //打印控制台方法
+        _log:function (methodName,args) {
+            console.log(this.name+"::"+methodName,args);
+        },
+        //在render方法前会被调用（当组件得到props或者state改变时就需要重新渲染）
+        componentWillUpdate:function(){
+            this._log("componentWillUpdate",arguments);
+        },
+        //更新的组件渲染完成后调用，该方法不会再初始化渲染时触发
+        componentDidUpdate: function() {
+            this._log('componentDidUpdate', arguments);
+        },
+        //在新节点插入DOM结构之前触发
+        componentWillMount: function() {
+            this._log('componentWillMount', arguments);
+        },
+        //在新节点插入DOM结构之后触发
+        componentDidMount: function() {
+            this._log('componentDidMount', arguments);
+        },
+        //在组件从DOM中移除时立刻触发
+        componentWillUnmount: function() {
+            this._log('componentWillUnmount', arguments);
+        }
+    };
+
     var TextAreaCounter = React.createClass({
         propTypes:{
-            text:React.PropTypes.string,
+            defaultValue:React.PropTypes.string,
         },
         getDefaultProps:function () {
             return {
                 text: "",
             };
         },
+        //初始化组件状态
         getInitialState:function(){
           return {
-              text: this.props.text,
+              text: this.props.defaultValue,
           }
         },
+        //
         _textChange:function(ev){
             this.setState({
+                //更新text属性为ev的value属性
                 text:ev.target.value,
             });
         },
@@ -36,17 +66,38 @@
             return React.DOM.div(null,
                 React.DOM.textarea({
                     value:this.state.text,
+                    //在textarea DOM中设置onChange监听事件
                     onChange:this._textChange,
                 }),
                 React.DOM.h3(null,this.state.text.length)
             );
-        }
+        },
+        //为代码片段添加name属性，方便辨认调用者
+        name:'TextAreaCounter',
+        //通过mixins，可以快速获取对象中所有的方法
+        mixins:[logMixin]
     });
+
+    //创建对TextAreaCounter对象的引用
+    var myTextAreaCounter = ReactDOM.render(
+        React.createElement(TextAreaCounter,{
+            defaultValue:"13124",
+        }),
+        document.getElementById("app")
+        );
+
+    //设置myTextAreaCounter组件的状态
+    myTextAreaCounter.setState({text:"Hello outside world!"});
+
+    //获取myTextAreaCounter父节点元素的引用
+    var reactAppNode=ReactDOM.findDOMNode(myTextAreaCounter);
+    reactAppNode.parentNode ===document.getElementById('app');
 
     ReactDOM.render(
         React.createElement(TextAreaCounter,{
             text:"Bob",
         }),
+        //通过该参数告诉React需要把应用渲染在页面的哪个部分
         document.getElementById("app")
     );
 </script>
