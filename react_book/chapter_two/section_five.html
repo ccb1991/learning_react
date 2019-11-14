@@ -9,7 +9,9 @@
     <!--应用渲染的位置 -->
 </div>
 <!--    设置react库-->
-<script src="../../build/react.js"></script>
+<!--<script src="../../build/react.js"></script>-->
+<!--注意库引入的顺序，后面引入的会有依赖前面引入的情况-->
+<script src="../../build/react-with-addons.js"></script>
 <script src="../../build/react-dom.js"></script>
 <script>
     var logMixin={
@@ -39,6 +41,26 @@
         }
     };
 
+    //计算器组件
+    var Counter=React.createClass({
+        name:"Counter",
+        //React.addons.PureRenderMixin为React通过Mixin提供的
+        // 通用比较this.state和nextstate值的实现
+        mixins:[logMixin,React.addons.PureRenderMixin],
+        propTypes:{
+            count:React.PropTypes.number.isRequired,
+        },
+
+        //在componentWillUpdate之前触发，给你一个机会返回false以取消更新组件
+        //此处当现在的count值与下一个count值相等时，就不执行组件渲染
+        // shouldComponentUpdate(nextProps,nextState_ignore){
+        //     return nextProps.count !== this.props.count;
+        // },
+        render:function () {
+            return React.DOM.span(null,this.props.count);
+        }
+    });
+
     var TextAreaCounter = React.createClass({
         propTypes:{
             defaultValue:React.PropTypes.string,
@@ -63,13 +85,23 @@
         },
 
         render:function () {
+            //当计数器为0时，不渲染counter组件
+            var counter=null;
+            if (this.state.text.length>0){
+                counter=React.DOM.h3(null,
+                    React.createElement(Counter,{
+                        count:this.state.text.length,
+                    })
+                );
+            }
+            //子组件在父组件之前装载并更新
             return React.DOM.div(null,
                 React.DOM.textarea({
                     value:this.state.text,
                     //在textarea DOM中设置onChange监听事件
                     onChange:this._textChange,
                 }),
-                React.DOM.h3(null,this.state.text.length)
+                counter
             );
         },
         //为代码片段添加name属性，方便辨认调用者
@@ -78,7 +110,7 @@
         mixins:[logMixin]
     });
 
-    //创建对TextAreaCounter对象的引用
+    //创建对TextAreaCounter对象的引用，同时也会渲染界面
     var myTextAreaCounter = ReactDOM.render(
         React.createElement(TextAreaCounter,{
             defaultValue:"13124",
@@ -93,13 +125,14 @@
     var reactAppNode=ReactDOM.findDOMNode(myTextAreaCounter);
     reactAppNode.parentNode ===document.getElementById('app');
 
-    ReactDOM.render(
-        React.createElement(TextAreaCounter,{
-            text:"Bob",
-        }),
-        //通过该参数告诉React需要把应用渲染在页面的哪个部分
-        document.getElementById("app")
-    );
+    //通过上面myTextAreaCounter渲染界面故先注释掉
+    // ReactDOM.render(
+    //     React.createElement(TextAreaCounter,{
+    //         text:"Bob",
+    //     }),
+    //     //通过该参数告诉React需要把应用渲染在页面的哪个部分
+    //     document.getElementById("app")
+    // );
 </script>
 </body>
 </html>
