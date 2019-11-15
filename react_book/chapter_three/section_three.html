@@ -9,8 +9,9 @@
 
 </div>
 </body>
-<script src="../../build/react-with-addons.js"></script>
-<script src="../../build/react-dom.js"></script>
+    <script src="../../build/react-with-addons.js"></script>
+    <script src="../../build/react-dom.js"></script>
+    <link rel="stylesheet" type="text/css" href="03.00.table.css">
 <script>
     var headers = [
         "Book", "Author", "Language", "Published", "Sales"
@@ -31,16 +32,48 @@
         ["She: A History of Adventure", "H. Rider Haggard",
             "English", "1887", "100 million"],
     ];
+
     var Excel = React.createClass({
+        proTypes:{
+          headers:React.PropTypes.arrayOf(
+              React.PropTypes.string
+          ).isRequired,
+            initialData: React.PropTypes.arrayOf(
+                React.PropTypes.arrayOf(
+                    React.PropTypes.string
+                )
+            )
+        },
+
+        getInitialState: function() {
+            return {data:this.props.initialData}
+        },
+        //当一个页面中有多个table组件时，增加显示名称方便调试,这个属性不能修改
+        displayName:'Excel',
         render: function() {
             return (
                 React.DOM.table(null,
                     React.DOM.thead(null,
+                        //tr设置html行
                         React.DOM.tr(null,
-                            this.props.headers.map(function(title) {
-                                return React.DOM.th(null, title);
+                            //map方法会把数组中的每个元素都传递到回调函数中
+                            this.props.headers.map(function(title,idx) {
+                                //th表示表头
+                                return React.DOM.th({key:idx}, title);
                             })
                         )
+                    ),
+                    React.DOM.tbody(null,
+                        //此处的this是指调用它的对象
+                        this.state.data.map(function(row,idx) {
+                            return (
+                                React.DOM.tr({key: idx},
+                                    row.map(function(cell, idx) {
+                                        return React.DOM.td({key: idx}, cell);
+                                    })
+                                )
+                            );
+                        })
                     )
                 )
             );
