@@ -34,6 +34,18 @@
     ];
 
     var Excel = React.createClass({
+        _sort: function(e) {
+            //cellindex属性表示e的第几列
+            var column = e.target.cellIndex;
+            var data = this.state.data.slice();
+            data.sort(function(a, b) {
+                return a[column] > b[column] ? 1 : -1;
+            });
+            this.setState({
+                data: data,
+            });
+        },
+
         proTypes:{
           headers:React.PropTypes.arrayOf(
               React.PropTypes.string
@@ -53,7 +65,8 @@
         render: function() {
             return (
                 React.DOM.table(null,
-                    React.DOM.thead(null,
+                    //为表头添加点击事件监听
+                    React.DOM.thead({onClick:this._sort},
                         //tr设置html行
                         React.DOM.tr(null,
                             //map方法会把数组中的每个元素都传递到回调函数中
