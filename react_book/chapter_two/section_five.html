@@ -97,13 +97,14 @@
             }
             //子组件在父组件之前装载并更新
             return React.DOM.div(null,
+                //多个子元素的组合
                 React.DOM.textarea({
                     value:this.state.text,
                     //在textarea DOM中设置onChange监听事件
                     onChange:this._textChange,
                 }),
                 counter
-            );
+            )
         },
         //为代码片段添加name属性，方便辨认调用者
         name:'TextAreaCounter',
