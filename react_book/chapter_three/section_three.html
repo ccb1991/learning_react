@@ -33,7 +33,11 @@
             "English", "1887", "100 million"],
     ];
 
-    var Excel = React.createClass({
+    const Excel = React.createClass({
+
+        //搜索数据副本
+        _preSearchData:null,
+
         _sort: function(e) {
             //cellindex属性表示e的第几列
             var column = e.target.cellIndex;
@@ -111,11 +115,25 @@
           }
           return (
               React.DOM.tr({onChange:this._search},
-
+                this.props.headers.map(function (_ignore, idx) {
+                    return React.DOM.td({key:idx},
+                    React.DOM.input(
+                        {
+                            type:"text",
+                            'data-idx':idx,
+                        }
+                    ));
+                })
               )
-          )
+          );
         },
 
+        //搜索方法
+        _toggleSearch:function(){
+
+        },
+
+        //渲染主方法
         render: function() {
             return (
                 React.Dom.div(null,
@@ -161,6 +179,8 @@
                 ),
                 //设置一个双击事件监听器
                 React.DOM.tbody({onDoubleClick:this._showEditor},
+                    //渲染搜素单元格
+                    this._renderSearch(),
                     //此处的this是指调用它的对象
                     this.state.data.map(function(row,rowidx) {
                         return (
