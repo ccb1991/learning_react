@@ -13,10 +13,10 @@
     <script src="../../build/react-dom.js"></script>
     <link rel="stylesheet" type="text/css" href="03.00.table.css">
 <script>
-    var headers = [
+    const headers = [
         "Book", "Author", "Language", "Published", "Sales"
     ];
-    var data = [
+    const data = [
         ["The Lord of the Rings", "J. R. R. Tolkien",
             "English", "1954–1955", "150 million"],
         ["Le Petit Prince (The Little Prince)", "Antoine de Saint-Exupéry",
@@ -37,6 +37,7 @@
         _sort: function(e) {
             //cellindex属性表示e的第几列
             var column = e.target.cellIndex;
+            // 因为排序方法会改变数组原始顺序，所以复制一份
             var data = this.state.data.slice();
             var descending = this.state.sortby ===column && !this.state.descending;
             data.sort(function(a, b) {
@@ -52,6 +53,7 @@
         },
 
         proTypes:{
+          //  react数组验证器，确保数组表头只接受字符串为数组元素，而且不能为空
           headers:React.PropTypes.arrayOf(
               React.PropTypes.string
           ).isRequired,
@@ -61,79 +63,135 @@
                 )
             )
         },
-
+        //负责react组件初始化的工作
         getInitialState: function() {
             return {
                 data:this.props.initialData,
                 sortby:null,
+                //排序属性，用于追踪升序还是降序
                 descending:false,
                 edit:null,
+                //用于追踪搜索对话框是否打开
+                search:false,
             };
         },
         //当一个页面中有多个table组件时，增加显示名称方便调试,这个属性不能修改
         displayName:'Excel',
 
+        //记住用户选择的单元格
         _showEditor:function(e) {
           this.setState(
               {edit:{
+                  //parseInt解析字符串，并返回一个整数
                   row:parseInt(e.target.dataset.row,10),
                   cell:e.target.cellIndex,
                   }}
           );
         },
 
+        //保存单元格内容
+        _save: function(e){
+            // 禁止浏览器的默认行为
+            e.preventDefault();
+            const input = e.target.firstChild;
+            const data=this.state.data.slice();
+            data[this.state.edit.row][this.state.edit.cell]=input.value;
+            //重新渲染表单
+            this.setState({
+                edit:null,
+                data:data,
+            })
+        },
+
+        //打开和关闭搜索功能
+        _renderSearch:function() {
+          //  如果search属性为false
+          if(!this.state.search){
+              return null;
+          }
+          return (
+              React.DOM.tr({onChange:this._search},
+
+              )
+          )
+        },
+
         render: function() {
             return (
-                React.DOM.table(null,
-                    //为表头添加点击事件监听
-                    React.DOM.thead({onClick:this._sort},
-                        //tr设置html行
-                        React.DOM.tr(null,
-                            //map方法会把数组中的每个元素都传递到回调函数中
-                            //map方法接受三个参数function(currentValue, index,arr)，
-                            //currentValue必须，当前元素的值，index可选，当前元素的索引值
-                            //arr可选，当前元素属于的数组对象
-                            this.props.headers.map(function(title,idx,initialData) {
-                                console.log("this is initialData",initialData);
-                                if (this.state.sortby ===idx) {
-                                    title += this.state.descending ? '\u2191':'\u2193'
-                                }
-                                //th表示表头
-                                return React.DOM.th({key:idx}, title)
-                            },this)// this参数可选。对象作为该执行回调时使用，传递给函数，
-                            // 用作 "this" 的值。如果省略了 thisValue，或者传入 null、undefined，那么回调函数的 this 为全局对象。
-                        )
-                    ),
-                    React.DOM.tbody({onDoubleClick:this._showEditor},
-                        //此处的this是指调用它的对象
-                        this.state.data.map(function(row,rowidx) {
-                            return (
-                                React.DOM.tr({key: rowidx},
-                                    row.map(function(cell, idx) {
-                                        var content=cell;
-                                        var edit = this.state.edit;
-                                        if (edit &&edit.row ===rowidx&&edit.cell===idx){
-                                            content=React.DOM.form({
+                React.Dom.div(null,
+                this._renderToolbar(),
+                this._renderTable()
+                )
+            );
+        },
+
+        // 渲染工具栏方法
+        _renderToolbar:function(){
+            //DOM对象第一个参数是给对象添加属性，第二个参数是需要添加的子元素
+            //最简单的子元素就是文本
+            return React.DOM.button(
+                {
+                    onClick: this._toggleSearch,
+                    className:"toolbar"
+                },
+                'search'
+            );
+        },
+
+        // 渲染表格方法
+        _renderTable:function(){
+            React.DOM.table(null,
+                //为表头添加点击事件监听
+                React.DOM.thead({onClick:this._sort},
+                    //tr设置html行
+                    React.DOM.tr(null,
+                        //map方法会把数组中的每个元素都传递到回调函数中
+                        //map方法接受三个参数function(currentValue, index,arr)，
+                        //currentValue必须，当前元素的值，index可选，当前元素的索引值
+                        //arr可选，当前元素属于的数组对象
+                        this.props.headers.map(function(title,idx) {
+                            if (this.state.sortby ===idx) {
+                                title += (this.state.descending ? '\u2191':'\u2193')
+                            }
+                            //th表示表头
+                            return React.DOM.th({key:idx}, title)
+                        },this)// this参数可选。对象作为该执行回调时使用，传递给函数，
+                        // 用作 "this" 的值。如果省略了 thisValue，或者传入 null、undefined，那么回调函数的 this 为全局对象。
+                    )
+                ),
+                //设置一个双击事件监听器
+                React.DOM.tbody({onDoubleClick:this._showEditor},
+                    //此处的this是指调用它的对象
+                    this.state.data.map(function(row,rowidx) {
+                        return (
+                            React.DOM.tr({key: rowidx},
+                                row.map(function(cell, idx) {
+                                    var content=cell;
+                                    // 双击事件会调用showEditor方法，给state.edit赋值，所以这里通过判断edit属性来判断是否编辑
+                                    var edit = this.state.edit;
+                                    if (edit &&edit.row ===rowidx&&edit.cell===idx){
+                                        content=React.DOM.form({
+                                                //为单元格添加onSubmit时间
+                                                //onsubmit 事件会在表单中的确认按钮被点击时发生。
                                                 onSubmit:this._save
                                             },
                                             React.DOM.input({
                                                 type:'text',
-                                                defaultValue:cell,
+                                                defaultValue:content,
                                             }))
-                                        }
-
-                                        return React.DOM.td({
-                                            key: idx,
+                                    }
+                                    //td元素是标准单元格
+                                    return React.DOM.td({
+                                        key: idx,
                                         'data-row':rowidx
-                                        },content);
-                                    },this)
-                                )
-                            );
-                        },this)
-                    )
+                                    },content);
+                                },this)
+                            )
+                        );
+                    },this)
                 )
-            );
-        }
+            )
+        },
     });
 
     ReactDOM.render(
