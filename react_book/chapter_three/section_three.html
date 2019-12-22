@@ -120,6 +120,10 @@
                     React.DOM.input(
                         {
                             type:"text",
+                            //此处命名为data-idx名称设置了
+                            // 后面dataset属性能够获取到的值
+                            //e.target.dataset只能获取到以data开头的属性
+                            //_search方法中使用
                             'data-idx':idx,
                         }
                     ));
@@ -128,15 +132,47 @@
           );
         },
 
-        //搜索方法
+        //负责切换搜索功能的打开与关闭
         _toggleSearch:function(){
+            //如果点击search按钮时，search属性为true，则关闭搜索功能
+            // 恢复数据
+            if (this.state.search){
+                this.setState({
+                    data:this._preSearchData,
+                    search:false,
+                });
+                this._preSearchData=null;
+            }
+            //如果点击search按钮时，search属性为false，
+            // 则打开搜索功能，给preSearchData赋值
+            else {
+                this._preSearchData=this.state.data;
+                this.setState({
+                    search:true,
+                });
+            }
+        },
 
+        //搜索函数
+        _search:function(e){
+            //将节点的value转为小写
+            const needle=e.target.value.toLowerCase();
+            if(!needle){
+                this.setState({data:this._preSearchData});
+                return;
+            }
+            const idx=e.target.dataset.idx;
+            const searchdata=this._preSearchData.filter(function (row) {
+                //搜索是否包含关键字是则返回true
+                return row[idx].toString().toLowerCase().indexOf(needle)>-1;
+            });
+            this.setState({data:searchdata});
         },
 
         //渲染主方法
         render: function() {
             return (
-                React.Dom.div(null,
+                React.DOM.div(null,
                 this._renderToolbar(),
                 this._renderTable()
                 )
@@ -158,6 +194,7 @@
 
         // 渲染表格方法
         _renderTable:function(){
+            return(
             React.DOM.table(null,
                 //为表头添加点击事件监听
                 React.DOM.thead({onClick:this._sort},
@@ -186,9 +223,9 @@
                         return (
                             React.DOM.tr({key: rowidx},
                                 row.map(function(cell, idx) {
-                                    var content=cell;
+                                    let content = cell;
                                     // 双击事件会调用showEditor方法，给state.edit赋值，所以这里通过判断edit属性来判断是否编辑
-                                    var edit = this.state.edit;
+                                    const edit = this.state.edit;
                                     if (edit &&edit.row ===rowidx&&edit.cell===idx){
                                         content=React.DOM.form({
                                                 //为单元格添加onSubmit时间
@@ -211,6 +248,7 @@
                     },this)
                 )
             )
+            );
         },
     });
 
