@@ -9,9 +9,9 @@
 
 </div>
 </body>
-    <script src="../../build/react-with-addons.js"></script>
-    <script src="../../build/react-dom.js"></script>
-    <link rel="stylesheet" type="text/css" href="03.00.table.css">
+<script src="../../build/react-with-addons.js"></script>
+<script src="../../build/react-dom.js"></script>
+<link rel="stylesheet" type="text/css" href="03.00.table.css">
 <script>
     const headers = [
         "Book", "Author", "Language", "Published", "Sales"
@@ -221,15 +221,43 @@
 
         // 渲染工具栏方法
         _renderToolbar:function(){
+            return React.DOM.div({className:'toolbar'},
             //DOM对象第一个参数是给对象添加属性，第二个参数是需要添加的子元素
             //最简单的子元素就是文本
-            return React.DOM.button(
-                {
-                    onClick: this._toggleSearch,
-                    className:"toolbar"
-                },
-                'search'
+            React.DOM.button(
+                {onClick: this._toggleSearch,
+                    className:"toolbar"},
+                'search'),
+            React.DOM.a({
+                onclick:this._download.bind(this,'json'),
+                href:'data.json'
+            },'Export JSON'),
+            React.DOM.a({
+                onClick:this._download.bind(this,'csv'),
+                href:'data.csv'
+            },'Export CSV')
             );
+        },
+
+        //下载方法
+        _download: function(format, ev) {
+            const contents = format === 'json'
+                ? JSON.stringify(this.state.data)
+                : this.state.data.reduce(function(result, row) {
+                    return result
+                        + row.reduce(function(rowresult, cell, idx) {
+                            return rowresult
+                                + '"'
+                                + cell.replace(/"/g, '""')
+                                + '"'
+                                + (idx < row.length - 1 ? ',' : '');
+                        }, '')
+                        + "\n";
+                }, '');
+            var URL = window.URL || window.webkitURL;
+            var blob = new Blob([contents],{type: 'text/' + format});
+            ev.target.href = URL.createObjectURL(blob);
+            ev.target.download = 'data.' + format;
         },
 
         // 渲染表格方法
