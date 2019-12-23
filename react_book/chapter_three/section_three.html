@@ -34,6 +34,46 @@
     ];
 
     const Excel = React.createClass({
+        _log:[],
+
+        _logSetState:function(newState){
+          //  克隆一份原来的state并记录下来
+          this._log.push(JSON.parse(JSON.stringify(
+              this._log.length===0?this.state:newState
+          )));
+          this.setState(newState);
+        },
+
+        // componentDidMount方法会在新节点插入DOM结构之后触发
+        componentDidMount:function(){
+            // document整个网页对象，监听键盘事件
+            // keycode 82对应键盘字母R
+            document.onkeydown=function (e) {
+                if (e.altKey && e.shiftKey && e.keyCode===82){
+                    this._replay();
+                }
+            //    bind方法是js 函数的内置方法，
+                //    将该函数的运行环境绑定在this这个对象上
+            }.bind(this)
+        },
+
+        _replay:function(){
+          if (this._log.length===0){
+              console.warn("No state to replay yet");
+          }
+          let idx=-1;
+          //setInterval() 方法可按照指定的周期（以毫秒计）来调用函数或计算表达式。
+          let interval=setInterval(function () {
+              idx++;
+              // 当idx等于log.length长度的时候
+              // 退出指定间隔执行的操作
+              if (idx===this._log.length-1){
+                  //clearInterval()取消指定setInterval()设定的定时执行操作。
+                  clearInterval(interval);
+              }
+              this.setState(this._log[idx]);
+          }.bind(this),1000);
+        },
 
         //搜索数据副本
         _preSearchData:null,
@@ -49,7 +89,7 @@
                 ? (a[column] < b[column] ? 1 : -1)
                 : (a[column]>b[column] ? 1: -1);
             });
-            this.setState({
+            this._logSetState({
                 data: data,
                 sortby:column,
                 descending:descending,
@@ -84,7 +124,7 @@
 
         //记住用户选择的单元格
         _showEditor:function(e) {
-          this.setState(
+          this._logSetState(
               {edit:{
                   //parseInt解析字符串，并返回一个整数
                   row:parseInt(e.target.dataset.row,10),
@@ -101,7 +141,7 @@
             const data=this.state.data.slice();
             data[this.state.edit.row][this.state.edit.cell]=input.value;
             //重新渲染表单
-            this.setState({
+            this._logSetState({
                 edit:null,
                 data:data,
             })
@@ -137,7 +177,7 @@
             //如果点击search按钮时，search属性为true，则关闭搜索功能
             // 恢复数据
             if (this.state.search){
-                this.setState({
+                this._logSetState({
                     data:this._preSearchData,
                     search:false,
                 });
@@ -147,7 +187,7 @@
             // 则打开搜索功能，给preSearchData赋值
             else {
                 this._preSearchData=this.state.data;
-                this.setState({
+                this._logSetState({
                     search:true,
                 });
             }
@@ -158,7 +198,7 @@
             //将节点的value转为小写
             const needle=e.target.value.toLowerCase();
             if(!needle){
-                this.setState({data:this._preSearchData});
+                this._logSetState({data:this._preSearchData});
                 return;
             }
             const idx=e.target.dataset.idx;
@@ -166,7 +206,7 @@
                 //搜索是否包含关键字是则返回true
                 return row[idx].toString().toLowerCase().indexOf(needle)>-1;
             });
-            this.setState({data:searchdata});
+            this._logSetState({data:searchdata});
         },
 
         //渲染主方法
