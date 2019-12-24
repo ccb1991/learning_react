@@ -3,16 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <script src="../../build/react.js"></script>
+    <script src="../../build/react-dom.js"></script>
+    <script src="./browser.js"></script>
 </head>
 <body>
+<div id="app">
 
+</div>
 </body>
-<script>
+<script type="text/babel">
+    const headers = [
+        "Book", "Author", "Language", "Published", "Sales"
+    ];
+    const data = [
+        ["The Lord of the Rings", "J. R. R. Tolkien",
+            "English", "1954–1955", "150 million"],
+        ["Le Petit Prince (The Little Prince)", "Antoine de Saint-Exupéry",
+            "French", "1943", "140 million"],
+        ["Harry Potter and the Philosopher's Stone", "J. K. Rowling",
+            "English", "1997", "107 million"],
+        ["And Then There Were None", "Agatha Christie",
+            "English", "1939", "100 million"],
+        ["Dream of the Red Chamber", "Cao Xueqin",
+            "Chinese", "1754–1791", "100 million"],
+        ["The Hobbit", "J. R. R. Tolkien",
+            "English", "1937", "100 million"],
+        ["She: A History of Adventure", "H. Rider Haggard",
+            "English", "1887", "100 million"],
+    ];
+
+    const Excel = React.createClass({
+
+        proTypes:{
+            //  react数组验证器，确保数组表头只接受字符串为数组元素，而且不能为空
+            headers:React.PropTypes.arrayOf(
+                React.PropTypes.string
+            ).isRequired,
+            initialData: React.PropTypes.arrayOf(
+                React.PropTypes.arrayOf(
+                    React.PropTypes.string
+                )
+            )
+        },
+
+        getInitialState: function() {
+            return {
+                data:this.props.initialData,
+                sortby:null,
+                //排序属性，用于追踪升序还是降序
+                descending:false,
+                edit:null,
+                //用于追踪搜索对话框是否打开
+                search:false,
+            };
+        },
+
+        render: function() {
+            const state = this.state;
+            return (
+                <table>
+                    <thead onClick={this._sort}>
+                    <tr>
+                        {this.props.headers.map(function(title, idx) {
+                            if (state.sortby === idx) {
+                                title += (state.descending ? ' \u2191' : ' \u2193');
+                            }
+                            return <th key={idx}>{title}</th>;
+                        })}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {state.data.map(function(row, idx) {
+                        return (
+                            <tr key={idx}>
+                                {row.map(function(cell, idx) {
+                                    return <td key={idx}>{cell}</td>;
+                                })}
+                            </tr>
+                        );
+                    })}
+                    </tbody>
+                </table>
+            );
+        }
+    });
+
     ReactDOM.render(
-    <h1 id="my-heading">
-        <span><em>Hell</em>o</span> world!
-    </h1>,
-    document.getElementById('app')
-    );
+        React.createElement(Excel, {
+            headers: headers,
+            initialData: data,
+        }),
+        document.getElementById("app")
+    )
 </script>
 </html>
