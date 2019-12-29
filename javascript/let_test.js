@@ -12,3 +12,15 @@ function aFun2(){
     }
     // i 对于for循环外的范围是可见的
 }
+
+function Box(width, length, height) {
+    function volume(a,b,c) {
+        return a*b*c;
+    }
+    this.boxVolume = volume(width, length, height);
+}
+
+const crate=new Box(5,4,3);
+console.log("Volume = " + crate.boxVolume); // 正确地工作
+// 由于volume()并没有用关键字this把它设置为对象的方法，所以失败了
+console.log(crate.volume(5,4,3));
