@@ -20,7 +20,18 @@ function Box(width, length, height) {
     this.boxVolume = volume(width, length, height);
 }
 
-const crate=new Box(5,4,3);
-console.log("Volume = " + crate.boxVolume); // 正确地工作
-// 由于volume()并没有用关键字this把它设置为对象的方法，所以失败了
-console.log(crate.volume(5,4,3));
+// const crate=new Box(5,4,3);
+// console.log("Volume = " + crate.boxVolume); // 正确地工作
+// // 由于volume()并没有用关键字this把它设置为对象的方法，所以失败了
+// console.log(crate.volume(5,4,3));
+
+
+
+var lordify = regularPerson => {
+    console.log('$(regularPerson.firstname) Canterbury')
+};
+var regularPerson = {
+    firstname: "Bill",
+    lastname: "Wilson"
+};
+lordify(regularPerson);
