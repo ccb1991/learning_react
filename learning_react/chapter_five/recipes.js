@@ -1,3 +1,4 @@
+// 将ReactDOM对象中的render属性解包
 const { render } = ReactDOM;
 
 const data = [
