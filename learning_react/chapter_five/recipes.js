@@ -54,6 +54,14 @@ const Recipe = ({ name, ingredients, steps }) =>
         </section>
     </section>;
 
+
+const Ingredients=({amount,measurement,name}) =>
+    <li>
+        <span className="amount">{amount}</span>
+        <span className="measurement">{measurement}</span>
+        <span className="name">{name}</span>
+    </li>;
+
 const Menu = ({ title, recipes }) =>
     <article>
         <header>
