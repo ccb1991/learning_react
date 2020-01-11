@@ -1,3 +1,8 @@
+import Menu from "./menu"
+import React from 'react'
+import {render} from 'react-dom'
+
+window.React=React;
 // 将ReactDOM对象中的render属性解包
 const { render } = ReactDOM;
 
@@ -38,44 +43,8 @@ const data = [
     }
 ];
 
-const Recipe = ({ name, ingredients, steps }) =>
-    <section id={name.toLowerCase().replace(/ /g, "-")}>
-        <h1>{name}</h1>
-        <ul className="ingredients">
-            {ingredients.map((ingredient, i) =>
-                <li key={i}>{ingredient.name}</li>
-            )}
-        </ul>
-        <section className="instructions">
-            <h2>Cooking Instructions</h2>
-            {steps.map((step, i) =>
-                <p key={i}>{step}</p>
-            )}
-        </section>
-    </section>;
-
-
-const Ingredients=({amount,measurement,name}) =>
-    <li>
-        <span className="amount">{amount}</span>
-        <span className="measurement">{measurement}</span>
-        <span className="name">{name}</span>
-    </li>;
-
-const Menu = ({ title, recipes }) =>
-    <article>
-        <header>
-            <h1>{title}</h1>
-        </header>
-        <div className="recipes">
-            {recipes.map((recipe, i) =>
-                <Recipe key={i} {...recipe} />
-            )}
-        </div>
-    </article>;
 
 render(
-    <Menu recipes={data}
-          title="Delicious Recipes" />,
+    <Menu recipes={data}/>,
     document.getElementById("react-container")
 );
