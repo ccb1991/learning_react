@@ -27,6 +27,7 @@
         }
 
         submit(e) {
+            //this.refs属性能够使react组件能够和其子元素交互，这边_title和_color属性是input元素中的
             const { _title, _color } = this.refs;
             //通知 Web 浏览器不要执行与事件关联的默认动作
             // e.preventDefault();
