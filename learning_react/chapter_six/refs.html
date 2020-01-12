@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>02 - Color Component with refs</title>
+</head>
+<body>
+<div id="react-container"></div>
+
+<script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+
+<script type="text/babel">
+
+    const { Component } = React;
+    const { render } = ReactDOM;
+    const logColor=(title,color) =>
+        console.log("New Color: ${title} | ${value}");
+
+    class AddColorForm extends Component {
+
+        constructor(props) {
+            super(props);
+            //此处的submit是为了创建一个循环引用，为了不刷新页面
+            this.submit = this.submit.bind(this)
+        }
+
+        submit(e) {
+            const { _title, _color } = this.refs;
+            //通知 Web 浏览器不要执行与事件关联的默认动作
+            // e.preventDefault();
+            // alert(`New Color: ${_title.value} ${_color.value}`);
+            this.props.onNewColor(_title.value,_color.value);
+            _title.value = '';
+            _color.value = '#000000';
+            _title.focus()
+        }
+
+        static propTypes={
+            onNewColor:PropTypes.func
+        };
+
+        static defaultProps={
+            onNewColor: f=>f
+        };
+
+        render() {
+            return (
+                <form onSubmit={this.submit}>
+                    <input ref="_title"
+                           type="text"
+                           placeholder="color title..." required/>
+                    <input ref="_color"
+                           type="color" required/>
+                    <button>ADD</button>
+                </form>
+            )
+        }
+    }
+
+    render(
+        <AddColorForm />,
+        document.getElementById('react-container')
+    )
+
+</script>
+
+</body>
+</html>
