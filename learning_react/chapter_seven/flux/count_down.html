@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script>
+    const {EventEmitter}=events;
+
+    class CountdownStore extends EventEmitter {
+        constructor(count=5,dispatcher) {
+            super();
+            this._count=count;
+            this.dispatcherIndex=dispatcher.register(
+                this.dispatch.bind(this)
+            )
+        }
+
+        get count(){
+            return this._count
+        }
+
+        dispatch(payload){
+            const {type,count} =payload.action;
+            switch (type) {
+                case "TICK":
+                    this._count=this._count-1;
+                    this.emit("TICK",this._count);
+                    return true;
+                case "RESET":
+                    this._count=count;
+                    this.emit("RESET",this._count);
+                    return true;
+            }
+        }
+    }
+
+    const countdownActions=dispatcher=>
+        (
+            {
+                tick(currentCount){
+                    dispatcher.handleAction({type:"TICK"})
+                },
+                reset(count){
+                    dispatcher.handleAction({type:"REST",count})
+                }
+            }
+        );
+
+    const {Dispatcher}=flux
+
+    class CountdownDispatcher extends Dispatcher{
+        handleAction(action){
+            console.log("dispatching:",action)
+            this.dispatch({
+                source:"VIEW_ACTION",
+                action
+            })
+        }
+    }
+
+</script>
+</body>
+</html>
