@@ -35,32 +35,40 @@
         }
     }
 
+    const colors=(state=[],action)=>{
+        switch (action.type) {
+            case C.ADD_COLOR:
+                return [
+                    ...state,
+                    color({},action)
+                ]
+            case C.RATE_COLOR:
+                return state.map(
+                    c=>color(c,action)
+                )
+            case C.REMOVE_COLOR:
+                return state.filter(
+                    c=>c.id!==action.id
+                )
+            default:
+                return state
+        }
+    }
+
+    const sort=(state="SORTED_BY_DATE",action)=>{
+        switch (action.type) {
+            case C.SORT_COLORS:
+                return action.sortBy
+            default:
+                return state
+        }
+    }
+
     const store = createStore(color)
 
-    const action={
-        type:"ADD_COLOR",
-        id:"1",
-        color:"#0000FF",
-        title:"Big Blue",
-    }
-
-    console.log(color({},action))
-
-    const existingColor={
-        id:"2",
-        title:"Big Blue",
-        color:"#00000FF",
-        rating:0
-    }
-
-    const action2={
-        type:"RATE_COLOR",
-        id:"1",
-        rating:4
-    }
-
-    console.log(color(existingColor,action2))
-    console.log(store.getState())
+    const {combineReducers}=Redux
+    const store2=createStore(combineReducers({colors,sort}))
+    console.log(store2.getState())
 
 </script>
 </body>
