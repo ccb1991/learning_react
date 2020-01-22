@@ -5,14 +5,22 @@
     <meta charset="utf-8">
     <script src="https://unpkg.com/redux@3.7.2/dist/redux.min.js"></script>
     <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+    <script src="https://unpkg.com/node-uuid@1.4.7/uuid.js"></script>
     <title>Redux</title>
 </head>
 <body>
 <div id="react-container"></div>
 <script type="text/babel">
+    const C = {
+        ADD_COLOR: "ADD_COLOR",
+        RATE_COLOR: "RATE_COLOR",
+        REMOVE_COLOR: "REMOVE_COLOR"
+    }
 
-    const { createStore } = Redux
+    const { createStore,applyMiddleware } = Redux
+    const { v4 } = uuid
 
+    //color reducer
     const color = (state = {}, action) => {
         switch (action.type) {
             case "ADD_COLOR":
@@ -35,6 +43,7 @@
         }
     }
 
+    //colors reducer
     const colors=(state=[],action)=>{
         switch (action.type) {
             case C.ADD_COLOR:
@@ -55,6 +64,7 @@
         }
     }
 
+    //sort Reducer
     const sort=(state="SORTED_BY_DATE",action)=>{
         switch (action.type) {
             case C.SORT_COLORS:
@@ -66,9 +76,84 @@
 
     const store = createStore(color)
 
-    const {combineReducers}=Redux
-    const store2=createStore(combineReducers({colors,sort}))
+    const {combineReducers}=Redux;
+    // combineReducers方法能够接收两个reducer的返回结果
+    //createStore 接受 reducer、 preloadedState、enhancer 三个参数， 返回 store 对象
+    const store2=createStore(combineReducers({colors,sort}));
+    console.log(store2.getState());
+
+    //注册store2监听器
+    store2.subscribe(()=>
+    console.log('color count: ',store2.getState().colors.length));
+    //在浏览器的localstorage中存储state
+    store2.subscribe(()=>{localStorage['redux-store']=JSON.stringify(store2.getState())})
+
+    //dispatch(action)接受一个action对象为参数，并将它发送出去，
+    // Store接受Action，接受之后需要返回一个新的State（状态）
+    store2.dispatch({
+        type:"ADD_COLOR",
+        id:"123",
+        rating:5,
+        title:"TEST",
+        color:"#F142FF"
+    });
+
     console.log(store2.getState())
+
+    //sortColors Action
+    const sortColors=sortedBy=>
+        (sortedBy==="rating")?
+            ({type:C.SORT_COLORS,sortedBy:"SORTED_BY_RATING"}):
+            (sortedBy==="title")?
+                ({type:C.SORT_COLORS,sortedBy:"SORTED_BY_TITLE"}):
+                ({type:C.SORT_COLORS,sortedBy:"SORTED_BY_DATE"});
+
+    //addColor Action
+    const addColor=(title,color)=>({
+        type:C.ADD_COLOR,
+        id:v4(),
+        title,
+        color,
+        timestamp:new Date().toString()
+    });
+
+    const logger=store=>next=>action=>{
+        let result;
+        //groupCollapsed后面打印的日志将在一个分组里面
+        console.groupCollapsed("dispatch",action.type);
+        console.log("prev state",store.getState());
+        console.log("action",action);
+        result=next(action)
+        console.log("next state",store.getState());
+        console.groupEnd()
+    };
+
+    const saver=store=>next=>action=>{
+        let result=next(action);
+        localStorage['redux-store']=JSON.stringify(store.getState());
+        return result
+    };
+
+    // store 工厂
+    const storeFactory=(initialState)=>
+        applyMiddleware(logger,saver)(createStore)(
+            combineReducers({colors,sort}),
+            (localStorage['redux-store'])?
+                JSON.parse(localStorage['redux-store']):initialState
+        );
+
+    const initialdata={
+        colors:[{
+            id: "3315e1p5-3abl-Op523-30e4-800118yf3036",
+        title: "Rad Red",
+        color: "#FFoooo",
+        rating: 3,
+        timestamp: "Sat Mar 12 2016 16:12:09 GMT-0800 (PST)"
+             }]
+    };
+
+    const store3=storeFactory(initialdata);
+    store3.dispatch(addColor("#FFFFFF","Bright White"))
 
 </script>
 </body>
