@@ -50,10 +50,12 @@ export const Contact = () =>
         </section>
     </PageTemplate>;
 
-//因为这里的About从主页进来是通过一个route渲染表示，所以需要接受match参数
-export const About = ({ match }) =>
+
+export const About = () =>
     <PageTemplate>
         <section className="about">
+            {/*无论哪个路径都需要先渲染Aboutmenu组件，所以AboutMenu没有匹配规则*/}
+            {/*这里没有使用Switch组件，任意和地址匹配的路由都会渲染显示与之相关的组件*/}
             <Route component={AboutMenu} />
             <Route exact path="/about" component={Company}/>
             <Route path="/about/history" component={History}/>

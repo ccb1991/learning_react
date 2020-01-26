@@ -38,6 +38,7 @@ render(
         <Redirect from="/location" to="/about/location" />
         <Route path="/about" component={About} />
         <Route path="/events" component={Events} />
+        {/*此处的path为navlink创建的链接*/}
         <Route path="/products" component={Products} />
         <Route path="/contact" component={Contact} />
         <Route component={Whoops404} />

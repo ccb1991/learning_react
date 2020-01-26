@@ -19,6 +19,7 @@ export const MainMenu = () =>
     </nav>
 
 
+//Route组件会路由参数至子组件，这边使用mathc解包
 export const AboutMenu = ({ match }) =>
     <div className="about-menu">
         <li>
