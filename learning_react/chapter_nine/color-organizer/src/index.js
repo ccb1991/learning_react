@@ -1,17 +1,17 @@
 import React from 'react'
-import { render } from 'react-dom'
-import { Provider } from 'react-redux'
+import ReactDOM from 'react-dom'
 import App from './components/App'
-import storeFactory from './store'
+import storeFactory from "./store"
 
-const store = storeFactory()
 
-window.React = React
-window.store = store
+const store=storeFactory()
 
-render(
-    <Provider store={store}>
-        <App />
-    </Provider>,
-    document.getElementById('react-container')
-)
+const render=()=>
+    ReactDOM.render(
+        <App store={store}/>,
+        document.getElementById("react-container")
+    );
+
+store.subscribe(render)
+
+render()
