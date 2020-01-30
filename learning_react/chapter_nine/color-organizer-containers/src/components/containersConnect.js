@@ -5,7 +5,7 @@ import ColorList from './ui/ColorList'
 import { addColor, sortColors, rateColor, removeColor } from '../actions'
 import { sortFunction } from '../lib/array-helpers'
 
-//
+//使用Connect快速创建容器
 export const NewColor = connect(
     null,
     dispatch=>({
